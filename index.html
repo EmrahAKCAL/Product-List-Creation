@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="app.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="including">
+        <nav class="navbar">
+            <div class="container">
+                <a href="#" class="navbar-brand">
+                    Oem Calculater
+                </a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <form >
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" class="form-control form-name" id="productName" placeholder="Name">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-price" id="productPrice" placeholder="Price">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-TL" id="productTL" placeholder="How much is 1 dollar?">
+                            </div>
+                        </div>
+                        <button class="btn btn-add" type="submit"><i class="fas fa-plus">Add</i></button>
+                        <button class="btn btn-saveChanges"  type="submit"><i class="far fa-edit">Save Changes</i></button>
+                        <button class="btn btn-delete"  type="submit"><i class="fas fa-times">Delete</i></button>
+                        <button class="btn btn-cancel"  type="submit"><i class="fas fa-arrow-circle-left">Cancel</i></button>
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <div id="productCard" class="card-table">
+                <table class="table">
+                    <tbody id="item-list">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-total">
+                <div class="card-footer">
+                    <p>Total(TL) : <strong><span id="total-tl"> 0</span> TL</strong></p>
+                    <p>Total($) : <strong><span id="total-dolar"> 0 </span> $</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
