@@ -7,15 +7,17 @@ const StorageController=(function(){
 const ProductController= (function(){
 
     //private
-    const Product= function(id, name, price){
+    const Product= function(id, name, price, priceTL){
         this.id=id;
         this.name=name;
         this.price=price;
+        this.priceTL=priceTL;
     }
     const data={
         Products:[],
         selectedProduct: null,
-        totalPrice: 0
+        totalPrice: 0,
+        totalPriceTL: 0
     }
     //public
     return{
@@ -25,7 +27,7 @@ const ProductController= (function(){
         getData: function(){
             return data;
         },
-        addProduct: function(name, price){
+        addProduct: function(name, price, priceTL){
             let id;
             if(data.Products.length>0){
                 id=data.Products[data.Products.length-1].id+1;
@@ -33,7 +35,7 @@ const ProductController= (function(){
             }else{
                 id=1;
             }
-            const newProduct= new Product(id, name, parseFloat(price));
+            const newProduct= new Product(id, name, parseFloat(price), parseFloat(priceTL));
             data.Products.push(newProduct);
             return newProduct;
         },
@@ -44,6 +46,14 @@ const ProductController= (function(){
             });
             data.totalPrice=total;
             return data.totalPrice;
+        },
+        getTotalTL: function(){
+            let totalTL=0;
+            data.Products.forEach(function (item){
+                totalTL+=item.priceTL;
+            });
+            data.totalPriceTL=totalTL;
+            return data.totalPriceTL;
         }
     }
 })();
@@ -55,6 +65,7 @@ const UIController=(function(){
         addButton: '.btn-add',
         productName: '#productName',
         productPrice: '#productPrice',
+        productTL:'#productTL',
         productCard: '#productCard',
         totalTL: '#total-tl',
         totalDolar: '#total-dolar'
@@ -68,6 +79,7 @@ const UIController=(function(){
                         <td>${prd.id}</td>
                         <td>${prd.name}</td>
                         <td>${prd.price} $</td>
+                        <td>${prd.priceTL} TL</td>
                         <td><button class="btn-sChangesTable"  type="submit"><i class="far fa-edit"></i></button></td>
                     </tr>`;
 
@@ -84,6 +96,7 @@ const UIController=(function(){
                         <td>${prd.id}</td>
                         <td>${prd.name}</td>
                         <td>${prd.price} $</td>
+                        <td>${prd.priceTL} TL</td>
                         <td><button class="btn-sChangesTable"  type="submit"><i class="far fa-edit"></i></button></td>
                     </tr>`;
                     document.querySelector(Selectors.productList).innerHTML+=item;
@@ -91,13 +104,18 @@ const UIController=(function(){
         clearInputs: function(){
             document.querySelector(Selectors.productName).value='';
             document.querySelector(Selectors.productPrice).value='';
+            document.querySelector(Selectors.productTL).value='';
         },
         hideCard: function(){
             document.querySelector(Selectors.productCard).style.display='none';
         },
         showTotal: function(total){
             document.querySelector(Selectors.totalDolar).textContent=total;
-            document.querySelector(Selectors.totalTL).textContent=total*4.5;
+            //document.querySelector(Selectors.totalTL).textContent=total*4.5;
+        },
+        showTotalTL: function(totalTL){
+            //document.querySelector(Selectors.totalDolar).textContent=total;
+            document.querySelector(Selectors.totalTL).textContent=totalTL;
         }
     }
 })();
@@ -115,23 +133,26 @@ const App=(function(ProductCtrl, UICtrl){
     const productAddSubmit=function(event){
         const productName=document.querySelector(UISelectors.productName).value;
         const productPrice=document.querySelector(UISelectors.productPrice).value;
+        const productTL=document.querySelector(UISelectors.productTL).value;
 
-        if(productName!=='' && productPrice!==''){
+        if(productName!=='' && productPrice!=='' && productTL!==''){
             //add product
-            const newProduct= ProductCtrl.addProduct(productName, productPrice);
+            const priceTL=(productPrice*productTL).toFixed(2);
+            const newProduct= ProductCtrl.addProduct(productName, productPrice, priceTL);
             //add item to list
             UIController.addProduct(newProduct);
 
             //get total
             const total= ProductCtrl.getTotal();
-
             //show total
             UICtrl.showTotal(total);
+
+            const totalTL= ProductCtrl.getTotalTL();
+            //show total
+            UICtrl.showTotalTL(totalTL);
             //clear inputs
             UIController.clearInputs();
         }
-
-        console.log(productName, productPrice);
         event.preventDefault();
     }
     return {
