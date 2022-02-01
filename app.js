@@ -154,6 +154,14 @@ const UIController=(function(){
             document.querySelector(Selectors.productPrice).value='';
             document.querySelector(Selectors.productTL).value='';
         },
+        clearWarnings: function(){
+            const items=document.querySelectorAll(Selectors.productListItems);
+            items.forEach(function(item){
+                if(item.classList.contains(Selectors.bgWarning)){
+                    item.classList.remove(Selectors.bgWarning);
+                }
+            });
+        },
         hideCard: function(){
             document.querySelector(Selectors.productCard).style.display='none';
         },
@@ -170,9 +178,7 @@ const UIController=(function(){
             document.querySelector(Selectors.productTL).value= selectedProduct.priceTL/selectedProduct.price;
         },
         addingState: function(item){
-            if(item){
-                item.classList.remove(Selectors.bgWarning);
-            }
+            UIController.clearWarnings();
 
             UIController.clearInputs();
             document.querySelector(Selectors.addButton).style.display='inline';
@@ -181,10 +187,6 @@ const UIController=(function(){
             document.querySelector(Selectors.cancelButton).style.display='none';
         },
         editState: function(tr){
-            const parent= tr.parentNode;
-            for(let i=0; i<parent.children.length; i++){
-                parent.children[i].classList.remove(Selectors.bgWarning);
-            }
             tr.classList.add(Selectors.bgWarning);
             document.querySelector(Selectors.addButton).style.display='none';
             document.querySelector(Selectors.updateButton).style.display='inline';
@@ -199,7 +201,7 @@ const App=(function(ProductCtrl, UICtrl){
     const UISelectors= UICtrl.getSelectors();
 
     //Load Event Listeners
-    const loadEventListener= function(){
+    const loadEventListeners= function(){
         //add product event submit
         document.querySelector(UISelectors.addButton).addEventListener('click', productAddSubmit);
 
@@ -208,6 +210,10 @@ const App=(function(ProductCtrl, UICtrl){
 
         //edit product submit
         document.querySelector(UISelectors.updateButton).addEventListener('click', editProductSubmit);
+
+        //cancel button click
+        document.querySelector(UISelectors.cancelButton).addEventListener('click', cancelUpDate);
+
     }
 
 
@@ -276,9 +282,15 @@ const App=(function(ProductCtrl, UICtrl){
             //show total
             UICtrl.showTotalTL(totalTL);
 
-            UICtrl.addingState(item);
+            UICtrl.addingState();
         }
 
+        event.preventDefault();
+    }
+    const cancelUpDate=function(event){
+
+        UICtrl.addingState();
+        UICtrl.clearWarnings();
         event.preventDefault();
     }
 
@@ -293,7 +305,7 @@ const App=(function(ProductCtrl, UICtrl){
                 UICtrl.createProductList(products);
             }
             //load event listeners
-            loadEventListener();
+            loadEventListeners();
         }
     }
 })(ProductController, UIController);
