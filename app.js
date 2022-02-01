@@ -22,6 +22,24 @@ const StorageController=(function(){
                 products= JSON.parse(localStorage.getItem('products'));
             }
             return products;
+        },
+        updateProduct: function(product){
+            let products= JSON.parse(localStorage.getItem('products'));
+            products.forEach(function(prd, index){
+                if(product.id==prd.id){
+                    products.splice(index, 1, product);
+                }
+            });
+            localStorage.setItem('products', JSON.stringify(products));
+        },
+        deleteProduct: function(id){
+            let products= JSON.parse(localStorage.getItem('products'));
+            products.forEach(function(prd, index){
+                if(id==prd.id){
+                    products.splice(index, 1);
+                }
+            });
+            localStorage.setItem('products', JSON.stringify(products));
         }
     }
 })();
@@ -236,7 +254,6 @@ const UIController=(function(){
 //App Controller
 const App=(function(ProductCtrl, UICtrl, StorageCtrl){
     const UISelectors= UICtrl.getSelectors();
-
     //Load Event Listeners
     const loadEventListeners= function(){
         //add product event submit
@@ -255,8 +272,6 @@ const App=(function(ProductCtrl, UICtrl, StorageCtrl){
         document.querySelector(UISelectors.deleteButton).addEventListener('click', deleteProductSubmit);
 
     }
-
-
 
     const productAddSubmit=function(event){
         const productName=document.querySelector(UISelectors.productName).value;
@@ -304,6 +319,7 @@ const App=(function(ProductCtrl, UICtrl, StorageCtrl){
 
         event.preventDefault();
     }
+
     const  editProductSubmit=function(event){
         const productName=document.querySelector(UISelectors.productName).value;
         const productPrice=document.querySelector(UISelectors.productPrice).value;
@@ -325,17 +341,22 @@ const App=(function(ProductCtrl, UICtrl, StorageCtrl){
             //show total
             UICtrl.showTotalTL(totalTL);
 
+            //update storage
+            StorageCtrl.updateProduct(updateProduct);
+
             UICtrl.addingState();
         }
 
         event.preventDefault();
     }
+
     const cancelUpDate=function(event){
 
         UICtrl.addingState();
         UICtrl.clearWarnings();
         event.preventDefault();
     }
+    
     const deleteProductSubmit= function(event){
         //get selected product
         const selectedProduct=ProductCtrl.getCurrentProduct();
@@ -345,18 +366,20 @@ const App=(function(ProductCtrl, UICtrl, StorageCtrl){
         //delete ui
         UICtrl.deleteProduct();
 
-        const total= ProductCtrl.getTotal();
         //show total
+        const total= ProductCtrl.getTotal();
         UICtrl.showTotal(total);
 
-        const totalTL= ProductCtrl.getTotalTL();
         //show total
-        
+        const totalTL= ProductCtrl.getTotalTL();
         UICtrl.showTotalTL(totalTL);
+
+
         if(total==0){
             UICtrl.hideCard();
         }
-       
+       //delete from storage
+       StorageCtrl.deleteProduct(selectedProduct.id);
 
         UICtrl.addingState();
         event.preventDefault();
@@ -372,6 +395,14 @@ const App=(function(ProductCtrl, UICtrl, StorageCtrl){
             else{
                 UICtrl.createProductList(products);
             }
+            const total= ProductCtrl.getTotal();
+            //show total
+            UICtrl.showTotal(total);
+    
+            const totalTL= ProductCtrl.getTotalTL();
+            //show total
+            
+            UICtrl.showTotalTL(totalTL);
             //load event listeners
             loadEventListeners();
         }
