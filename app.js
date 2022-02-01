@@ -42,7 +42,6 @@ const ProductController= (function(){
         getCurrentProduct: function(){
             return data.selectedProduct;
         },
-
         addProduct: function(name, price, priceTL){
             let id;
             if(data.Products.length>0){
@@ -67,6 +66,13 @@ const ProductController= (function(){
             });
 
             return product;
+        },
+        deleteProduct: function(product){
+            data.Products.forEach(function(prd, index){
+                if(prd.id==product.id){
+                    data.Products.splice(index, 1);
+                }
+            });
         },
         getTotal: function(){
             let total=0;
@@ -177,6 +183,14 @@ const UIController=(function(){
             document.querySelector(Selectors.productPrice).value= selectedProduct.price;
             document.querySelector(Selectors.productTL).value= selectedProduct.priceTL/selectedProduct.price;
         },
+        deleteProduct: function(){
+            let items= document.querySelectorAll(Selectors.productListItems);
+            items.forEach(function(item){
+                if(item.classList.contains(Selectors.bgWarning)){
+                    item.remove();
+                }
+            });
+        },
         addingState: function(item){
             UIController.clearWarnings();
 
@@ -213,6 +227,9 @@ const App=(function(ProductCtrl, UICtrl){
 
         //cancel button click
         document.querySelector(UISelectors.cancelButton).addEventListener('click', cancelUpDate);
+
+        //delete product
+        document.querySelector(UISelectors.deleteButton).addEventListener('click', deleteProductSubmit);
 
     }
 
@@ -253,7 +270,7 @@ const App=(function(ProductCtrl, UICtrl){
             const product= ProductCtrl.getProductById(id);
             //set current product
             ProductCtrl.setCurrentProduct(product);
-
+            UICtrl.clearWarnings();
             //add product to UI
             UICtrl.addProductToForm();
             UICtrl.editState(event.target.parentNode.parentNode);
@@ -291,6 +308,31 @@ const App=(function(ProductCtrl, UICtrl){
 
         UICtrl.addingState();
         UICtrl.clearWarnings();
+        event.preventDefault();
+    }
+    const deleteProductSubmit= function(event){
+        //get selected product
+        const selectedProduct=ProductCtrl.getCurrentProduct();
+        //delete product
+        ProductCtrl.deleteProduct(selectedProduct);
+
+        //delete ui
+        UICtrl.deleteProduct();
+
+        const total= ProductCtrl.getTotal();
+        //show total
+        UICtrl.showTotal(total);
+
+        const totalTL= ProductCtrl.getTotalTL();
+        //show total
+        
+        UICtrl.showTotalTL(totalTL);
+        if(total==0){
+            UICtrl.hideCard();
+        }
+       
+
+        UICtrl.addingState();
         event.preventDefault();
     }
 
