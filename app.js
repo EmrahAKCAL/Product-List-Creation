@@ -55,6 +55,19 @@ const ProductController= (function(){
             data.Products.push(newProduct);
             return newProduct;
         },
+        updateProduct: function(name, price, priceTL){
+            let product=null;
+            data.Products.forEach(function(prd){
+                if(prd.id==data.selectedProduct.id){
+                    prd.name=name;
+                    prd.price=parseFloat(price);
+                    prd.priceTL=parseFloat(priceTL);
+                    product=prd;
+                }
+            });
+
+            return product;
+        },
         getTotal: function(){
             let total=0;
             data.Products.forEach(function (item){
@@ -78,6 +91,7 @@ const ProductController= (function(){
 const UIController=(function(){
     const Selectors={
         productList: '#item-list',
+        productListItems: '#item-list tr',
         addButton: '.btn-add',
         updateButton: '.btn-saveChanges',
         deleteButton: '.btn-delete',
@@ -121,6 +135,20 @@ const UIController=(function(){
                     </tr>`;
                     document.querySelector(Selectors.productList).innerHTML+=item;
         },
+        updateProduct: function(prd){
+            let updataItem=null;
+            let items= document.querySelectorAll(Selectors.productListItems);
+            items.forEach(function(item){
+                if(item.classList.contains(Selectors.bgWarning)){
+                    item.children[1].textContent= prd.name;
+                    item.children[2].textContent=prd.price + '$';
+                    item.children[3].textContent=prd.priceTL+ ' TL';
+                    //...........................................................
+                    updataItem=item;
+                }
+            });
+            return updataItem;
+        },
         clearInputs: function(){
             document.querySelector(Selectors.productName).value='';
             document.querySelector(Selectors.productPrice).value='';
@@ -130,12 +158,10 @@ const UIController=(function(){
             document.querySelector(Selectors.productCard).style.display='none';
         },
         showTotal: function(total){
-            document.querySelector(Selectors.totalDolar).textContent=total;
-            //document.querySelector(Selectors.totalTL).textContent=total*4.5;
+            document.querySelector(Selectors.totalDolar).textContent=total.toFixed(2);
         },
         showTotalTL: function(totalTL){
-            //document.querySelector(Selectors.totalDolar).textContent=total;
-            document.querySelector(Selectors.totalTL).textContent=totalTL;
+            document.querySelector(Selectors.totalTL).textContent=totalTL.toFixed(2);
         },
         addProductToForm: function(){
             const selectedProduct= ProductController.getCurrentProduct();
@@ -143,7 +169,11 @@ const UIController=(function(){
             document.querySelector(Selectors.productPrice).value= selectedProduct.price;
             document.querySelector(Selectors.productTL).value= selectedProduct.priceTL/selectedProduct.price;
         },
-        addingState: function(){
+        addingState: function(item){
+            if(item){
+                item.classList.remove(Selectors.bgWarning);
+            }
+
             UIController.clearInputs();
             document.querySelector(Selectors.addButton).style.display='inline';
             document.querySelector(Selectors.updateButton).style.display='none';
@@ -170,11 +200,14 @@ const App=(function(ProductCtrl, UICtrl){
 
     //Load Event Listeners
     const loadEventListener= function(){
-        //add product event
+        //add product event submit
         document.querySelector(UISelectors.addButton).addEventListener('click', productAddSubmit);
 
-        //edit product
-        document.querySelector(UISelectors.productList).addEventListener('click', productEditSubmit);
+        //edit product click
+        document.querySelector(UISelectors.productList).addEventListener('click', productEditClick);
+
+        //edit product submit
+        document.querySelector(UISelectors.updateButton).addEventListener('click', editProductSubmit);
     }
 
 
@@ -205,7 +238,7 @@ const App=(function(ProductCtrl, UICtrl){
         event.preventDefault();
     }
 
-    const productEditSubmit=function(event){
+    const productEditClick=function(event){
         if(event.target.classList.contains('btn-sChangesTable')){
             const id= event.target.parentNode.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent;
 
@@ -218,6 +251,32 @@ const App=(function(ProductCtrl, UICtrl){
             //add product to UI
             UICtrl.addProductToForm();
             UICtrl.editState(event.target.parentNode.parentNode);
+        }
+
+        event.preventDefault();
+    }
+    const  editProductSubmit=function(event){
+        const productName=document.querySelector(UISelectors.productName).value;
+        const productPrice=document.querySelector(UISelectors.productPrice).value;
+        const productTL=document.querySelector(UISelectors.productTL).value;
+
+        if(productName!=='' && productPrice!=='' && productTL!==''){
+            const priceTL=(productPrice*productTL).toFixed(2); 
+            //update product
+            const updateProduct= ProductCtrl.updateProduct(productName, productPrice, priceTL);
+
+            //uptade ui
+            let item= UICtrl.updateProduct(updateProduct);
+
+            const total= ProductCtrl.getTotal();
+            //show total
+            UICtrl.showTotal(total);
+
+            const totalTL= ProductCtrl.getTotalTL();
+            //show total
+            UICtrl.showTotalTL(totalTL);
+
+            UICtrl.addingState(item);
         }
 
         event.preventDefault();
