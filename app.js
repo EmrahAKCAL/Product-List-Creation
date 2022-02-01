@@ -27,6 +27,22 @@ const ProductController= (function(){
         getData: function(){
             return data;
         },
+        getProductById: function(id){
+            let product=null;
+            data.Products.forEach(function(prd){
+                if(prd.id==id){
+                    product=prd
+                }
+            });
+            return product;
+        },
+        setCurrentProduct: function(product){
+            data.selectedProduct = product;
+        },
+        getCurrentProduct: function(){
+            return data.selectedProduct;
+        },
+
         addProduct: function(name, price, priceTL){
             let id;
             if(data.Products.length>0){
@@ -80,7 +96,7 @@ const UIController=(function(){
                         <td>${prd.name}</td>
                         <td>${prd.price} $</td>
                         <td>${prd.priceTL} TL</td>
-                        <td><button class="btn-sChangesTable"  type="submit"><i class="far fa-edit"></i></button></td>
+                        <td><i class="far fa-edit btn-sChangesTable"></i></td>
                     </tr>`;
 
             });
@@ -97,7 +113,7 @@ const UIController=(function(){
                         <td>${prd.name}</td>
                         <td>${prd.price} $</td>
                         <td>${prd.priceTL} TL</td>
-                        <td><button class="btn-sChangesTable"  type="submit"><i class="far fa-edit"></i></button></td>
+                        <td><i class="far fa-edit btn-sChangesTable"></i></td>
                     </tr>`;
                     document.querySelector(Selectors.productList).innerHTML+=item;
         },
@@ -116,6 +132,13 @@ const UIController=(function(){
         showTotalTL: function(totalTL){
             //document.querySelector(Selectors.totalDolar).textContent=total;
             document.querySelector(Selectors.totalTL).textContent=totalTL;
+        },
+        addProductToForm: function(){
+            const selectedProduct= ProductController.getCurrentProduct();
+            document.querySelector(Selectors.productName).value= selectedProduct.name;
+            document.querySelector(Selectors.productPrice).value= selectedProduct.price;
+            document.querySelector(Selectors.productTL).value= selectedProduct.priceTL/selectedProduct.price;
+            console.log(selectedProduct);
         }
     }
 })();
@@ -128,7 +151,12 @@ const App=(function(ProductCtrl, UICtrl){
     const loadEventListener= function(){
         //add product event
         document.querySelector(UISelectors.addButton).addEventListener('click', productAddSubmit);
+
+        //edit product
+        document.querySelector(UISelectors.productList).addEventListener('click', productEditSubmit);
     }
+
+
 
     const productAddSubmit=function(event){
         const productName=document.querySelector(UISelectors.productName).value;
@@ -155,6 +183,24 @@ const App=(function(ProductCtrl, UICtrl){
         }
         event.preventDefault();
     }
+
+    const productEditSubmit=function(event){
+        if(event.target.classList.contains('btn-sChangesTable')){
+            const id= event.target.parentNode.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent;
+
+
+            //get selected product
+            const product= ProductCtrl.getProductById(id);
+            //set current product
+            ProductCtrl.setCurrentProduct(product);
+
+            //add product to UI
+            UICtrl.addProductToForm();
+        }
+
+        event.preventDefault();
+    }
+
     return {
         init: function(){
             console.log('starting app...');
