@@ -1,6 +1,29 @@
 //Storage Controller
 const StorageController=(function(){
-    
+    return {
+        storageProduct: function(product){
+            let products;
+            if(localStorage.getItem('products')==null){
+                products=[];
+                products.push(product);
+            }
+            else{
+                products= JSON.parse(localStorage.getItem('products'));
+                products.push(product);
+            }
+            localStorage.setItem('products', JSON.stringify(products));
+        },
+        getProducts: function(){
+            let products;
+            if(localStorage.getItem('products')==null){
+                products=[];
+            }
+            else{
+                products= JSON.parse(localStorage.getItem('products'));
+            }
+            return products;
+        }
+    }
 })();
 
 //Product Controller
@@ -14,7 +37,7 @@ const ProductController= (function(){
         this.priceTL=priceTL;
     }
     const data={
-        Products:[],
+        Products: StorageController.getProducts(),
         selectedProduct: null,
         totalPrice: 0,
         totalPriceTL: 0
@@ -211,7 +234,7 @@ const UIController=(function(){
 })();
 
 //App Controller
-const App=(function(ProductCtrl, UICtrl){
+const App=(function(ProductCtrl, UICtrl, StorageCtrl){
     const UISelectors= UICtrl.getSelectors();
 
     //Load Event Listeners
@@ -246,6 +269,9 @@ const App=(function(ProductCtrl, UICtrl){
             const newProduct= ProductCtrl.addProduct(productName, productPrice, priceTL);
             //add item to list
             UICtrl.addProduct(newProduct);
+
+            //add product to local storage
+            StorageCtrl.storageProduct(newProduct);
 
             //get total
             const total= ProductCtrl.getTotal();
@@ -350,6 +376,6 @@ const App=(function(ProductCtrl, UICtrl){
             loadEventListeners();
         }
     }
-})(ProductController, UIController);
+})(ProductController, UIController, StorageController);
 
 App.init();
