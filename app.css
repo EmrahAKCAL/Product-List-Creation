@@ -106,6 +106,7 @@ body{
     color: #808080;
 }
 .table{
+    text-transform: capitalize;
     background-color: #00e5f5;
     border: 1px solid #09abb6;
     justify-content: space-between;
@@ -114,6 +115,7 @@ body{
     font-size: 22px;
     padding: 7px;
     box-shadow: 2px 4px 4px 4px rgba(11, 189, 186, 0.289);
+    border-radius: 10px;
 }
 .btn-sChangesTable{
     background-color: #0ab7c4;
@@ -139,6 +141,13 @@ body{
     text-align: right;
     margin-right: 10px;
 }
+
+.bg-warning{
+    background-color: #02b142;
+    color: #ffd700;
+}
+
+
 
 
 /* Tooltip css*/

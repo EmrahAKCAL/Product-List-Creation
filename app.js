@@ -79,12 +79,16 @@ const UIController=(function(){
     const Selectors={
         productList: '#item-list',
         addButton: '.btn-add',
+        updateButton: '.btn-saveChanges',
+        deleteButton: '.btn-delete',
+        cancelButton: '.btn-cancel',
         productName: '#productName',
         productPrice: '#productPrice',
         productTL:'#productTL',
         productCard: '#productCard',
         totalTL: '#total-tl',
-        totalDolar: '#total-dolar'
+        totalDolar: '#total-dolar',
+        bgWarning: 'bg-warning'
     }
     return{
         createProductList: function(products){
@@ -138,14 +142,31 @@ const UIController=(function(){
             document.querySelector(Selectors.productName).value= selectedProduct.name;
             document.querySelector(Selectors.productPrice).value= selectedProduct.price;
             document.querySelector(Selectors.productTL).value= selectedProduct.priceTL/selectedProduct.price;
-            console.log(selectedProduct);
+        },
+        addingState: function(){
+            UIController.clearInputs();
+            document.querySelector(Selectors.addButton).style.display='inline';
+            document.querySelector(Selectors.updateButton).style.display='none';
+            document.querySelector(Selectors.deleteButton).style.display='none';
+            document.querySelector(Selectors.cancelButton).style.display='none';
+        },
+        editState: function(tr){
+            const parent= tr.parentNode;
+            for(let i=0; i<parent.children.length; i++){
+                parent.children[i].classList.remove(Selectors.bgWarning);
+            }
+            tr.classList.add(Selectors.bgWarning);
+            document.querySelector(Selectors.addButton).style.display='none';
+            document.querySelector(Selectors.updateButton).style.display='inline';
+            document.querySelector(Selectors.deleteButton).style.display='inline';
+            document.querySelector(Selectors.cancelButton).style.display='inline';
         }
     }
 })();
 
 //App Controller
 const App=(function(ProductCtrl, UICtrl){
-    const UISelectors= UIController.getSelectors();
+    const UISelectors= UICtrl.getSelectors();
 
     //Load Event Listeners
     const loadEventListener= function(){
@@ -168,7 +189,7 @@ const App=(function(ProductCtrl, UICtrl){
             const priceTL=(productPrice*productTL).toFixed(2);
             const newProduct= ProductCtrl.addProduct(productName, productPrice, priceTL);
             //add item to list
-            UIController.addProduct(newProduct);
+            UICtrl.addProduct(newProduct);
 
             //get total
             const total= ProductCtrl.getTotal();
@@ -179,7 +200,7 @@ const App=(function(ProductCtrl, UICtrl){
             //show total
             UICtrl.showTotalTL(totalTL);
             //clear inputs
-            UIController.clearInputs();
+            UICtrl.clearInputs();
         }
         event.preventDefault();
     }
@@ -196,6 +217,7 @@ const App=(function(ProductCtrl, UICtrl){
 
             //add product to UI
             UICtrl.addProductToForm();
+            UICtrl.editState(event.target.parentNode.parentNode);
         }
 
         event.preventDefault();
@@ -203,7 +225,7 @@ const App=(function(ProductCtrl, UICtrl){
 
     return {
         init: function(){
-            console.log('starting app...');
+            UICtrl.addingState();
             const products= ProductCtrl.getProducts();
             if(products.length==0){
                 UICtrl.hideCard();
